@@ -5,6 +5,7 @@ const {
   generateToken,
   generateRefreshToken,
 } = require("../helpers");
+const AccountHistory = require("../models/AccountHistory.model");
 const EmailCode = require("../models/EmailCode.model");
 const User = require("../models/User.model");
 
@@ -16,10 +17,6 @@ const handleAuthenticateService = (email) => {
         await EmailCode.deleteOne({ email });
       }
       const { emailCode, expires } = generateEmailCode(15);
-      console.log({
-        emailCode,
-        expires,
-      });
       const html = `
           <!DOCTYPE html>
           <html lang="en">
@@ -121,6 +118,10 @@ const handleVerifyCodeService = async (email, code) => {
               const refreshToken = generateRefreshToken(email);
               if (existUser) {
                 // trả về thông tin user cho FE
+                await AccountHistory.create({
+                  accountId: existUser._id,
+                  action: "LOGIN",
+                });
                 existUser.refreshToken = refreshToken;
                 await existUser.save();
                 existEmail.isUsed = true;
@@ -145,6 +146,10 @@ const handleVerifyCodeService = async (email, code) => {
                   refreshToken,
                 });
                 if (newUser) {
+                  await AccountHistory.create({
+                    accountId: existUser._id,
+                    action: "REGISTER",
+                  });
                   // trả về response thông báo welcome first come to Binggo and setup some information for account
                   existEmail.isUsed = true;
                   await existEmail.save();

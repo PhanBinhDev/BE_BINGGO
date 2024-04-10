@@ -3,10 +3,6 @@ const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema(
   {
-    messageId: {
-      type: Types.ObjectId,
-      required: true,
-    },
     conversation: {
       type: Types.ObjectId,
       ref: "Conversation",

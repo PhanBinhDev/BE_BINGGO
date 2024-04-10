@@ -1,6 +1,6 @@
 const { Types } = require("mongoose");
 const mongoose = require("mongoose");
-const MemberModel = require("./MemberModel.model");
+const { MemberModel } = require("./MemberModel.model").schema;
 
 const conversationSchema = new mongoose.Schema(
   {
@@ -8,12 +8,23 @@ const conversationSchema = new mongoose.Schema(
       type: Boolean,
       require: true,
     },
-    members: [MemberModel],
+    nameChat: {
+      type: String,
+      require: function () {
+        return this.isGroupChat === true;
+      },
+    },
+    members: { type: [MemberModel], default: [] },
     createdBy: {
       type: Types.ObjectId,
       ref: "User",
     },
-    messages: {},
+    messages: [
+      {
+        type: Types.ObjectId,
+        ref: "Message",
+      },
+    ],
     avatar: {
       type: String,
     },

@@ -23,7 +23,6 @@ const getGalleryController = asyncHandler(async (req, res) => {
 
 const uploadGalleryController = asyncHandler(async (req, res) => {
   const file = req.file;
-  // const { category } = req.query;
   const category = "other";
   const subCategory = "";
   if (!file) {

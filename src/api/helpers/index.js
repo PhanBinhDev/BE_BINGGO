@@ -22,6 +22,7 @@ module.exports = {
       };
 
       const statusSend = await transporter.sendMail(mailOptions);
+      console.log("statusSend", statusSend);
       return statusSend;
     } catch (error) {
       console.log(error);
