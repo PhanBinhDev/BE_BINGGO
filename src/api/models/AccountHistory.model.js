@@ -8,7 +8,31 @@ const accountHistorySchema = new mongoose.Schema(
       type: Types.ObjectId,
       ref: "User",
     },
-    device: { type: Types.ObjectId, ref: "Device" },
+    device: {
+      deviceName: {
+        type: String,
+      },
+      deviceType: {
+        type: String,
+      },
+      operatingSystem: {
+        type: String,
+        enum: ["Windows", "Mac", "Linux"],
+      },
+      status: {
+        type: String,
+        enum: ["ON", "OFF"],
+      },
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
     action: {
       type: String,
       enum: [

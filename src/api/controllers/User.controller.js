@@ -26,6 +26,13 @@ const authenticateController = asyncHandler(async (req, res) => {
 
 const verifyEmailCodeController = asyncHandler(async (req, res) => {
   const { code, email } = req.query;
+  const { device } = req.body;
+  if (!device) {
+    return res.status(400).json({
+      errCode: 1,
+      message: "Cannot inspect device",
+    });
+  }
   if (!code) {
     return res.status(400).json({
       errCode: 1,
@@ -39,7 +46,7 @@ const verifyEmailCodeController = asyncHandler(async (req, res) => {
     });
   }
 
-  const response = await handleVerifyCodeService(email, code);
+  const response = await handleVerifyCodeService(email, code, device);
   if (response.errCode === 0) {
     res.cookie("refreshToken", response.refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,

@@ -96,7 +96,8 @@ const handleAuthenticateService = (email) => {
   });
 };
 
-const handleVerifyCodeService = async (email, code) => {
+const handleVerifyCodeService = async (email, code, device) => {
+  const { deviceName, deviceType, location, operatingSystem } = device;
   return new Promise(async (resolve, reject) => {
     try {
       const existEmail = await EmailCode.findOne({ email });
@@ -113,19 +114,38 @@ const handleVerifyCodeService = async (email, code) => {
             // chưa được sử dụng
             const verified = await existEmail.isCorrectCode(code);
             // xác thực code từ FE
+            const newLogAccount = await AccountHistory.create({
+              accountId: existUser._id,
+              // action: "LOGIN",
+              device: {
+                deviceName,
+                deviceType,
+                operatingSystem,
+                status: "ON",
+              },
+              location: {
+                type: "Point",
+                coordinates: [location.latitude, location.longitude],
+              },
+            });
             if (verified) {
               const accessToken = generateToken(email);
               const refreshToken = generateRefreshToken(email);
               if (existUser) {
                 // trả về thông tin user cho FE
-                await AccountHistory.create({
-                  accountId: existUser._id,
-                  action: "LOGIN",
-                });
+
+                // save refreshToken in DB
                 existUser.refreshToken = refreshToken;
                 await existUser.save();
+
+                // change to code had used
                 existEmail.isUsed = true;
                 await existEmail.save();
+
+                // save action log
+                newLogAccount.action = "LOGIN";
+                await newLogAccount.save();
+
                 resolve({
                   errCode: 0,
                   message: `Verified successfully.${
@@ -146,10 +166,8 @@ const handleVerifyCodeService = async (email, code) => {
                   refreshToken,
                 });
                 if (newUser) {
-                  await AccountHistory.create({
-                    accountId: existUser._id,
-                    action: "REGISTER",
-                  });
+                  newLogAccount.action = "REGISTER";
+                  await newLogAccount.save();
                   // trả về response thông báo welcome first come to Binggo and setup some information for account
                   existEmail.isUsed = true;
                   await existEmail.save();
