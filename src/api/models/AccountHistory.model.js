@@ -9,6 +9,10 @@ const accountHistorySchema = new mongoose.Schema(
       ref: "User",
     },
     device: {
+      uuid: {
+        type: String,
+        require: true,
+      },
       deviceName: {
         type: String,
       },

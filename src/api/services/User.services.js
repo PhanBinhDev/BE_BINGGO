@@ -97,7 +97,7 @@ const handleAuthenticateService = (email) => {
 };
 
 const handleVerifyCodeService = async (email, code, device) => {
-  const { deviceName, deviceType, location, operatingSystem } = device;
+  const { deviceName, deviceType, location, operatingSystem, uuid } = device;
   return new Promise(async (resolve, reject) => {
     try {
       const existEmail = await EmailCode.findOne({ email });
@@ -116,8 +116,8 @@ const handleVerifyCodeService = async (email, code, device) => {
             // xác thực code từ FE
             const newLogAccount = await AccountHistory.create({
               accountId: existUser._id,
-              // action: "LOGIN",
               device: {
+                uuid,
                 deviceName,
                 deviceType,
                 operatingSystem,
